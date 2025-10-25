@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Realistisch Oog Animatie</title>
+  <title>Mutant Eye v3</title>
   <style>
     * {
       margin: 0;
@@ -13,18 +13,18 @@
 
     body {
       height: 100vh;
-      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       background: radial-gradient(circle at 50% 20%, #e6d3c2 0%, #cbb199 40%, #b09174 100%);
       overflow: hidden;
+      cursor: none;
     }
 
     .container {
-      height: 320px;
-      width: 320px;
       position: relative;
+      width: 320px;
+      height: 320px;
       border-radius: 50%;
       box-shadow: 0 0 50px rgba(0,0,0,0.3);
     }
@@ -36,12 +36,9 @@
       border-radius: 50%;
       background: radial-gradient(circle at 50% 40%, #ffffff 0%, #f4f4f4 60%, #d9d9d9 100%);
       overflow: hidden;
-      box-shadow:
-        inset 0 0 40px rgba(0,0,0,0.3),
-        inset 0 0 8px rgba(255,255,255,0.6);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.3), inset 0 0 8px rgba(255,255,255,0.6);
     }
 
-    /* bloedvaatjes */
     .veins {
       position: absolute;
       width: 100%;
@@ -98,10 +95,53 @@
       mix-blend-mode: screen;
     }
 
+    /* --- Mutant mini-ogen --- */
+    .mini-eye {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 40%, #ffffff 0%, #f3f3f3 60%, #d6d6d6 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        inset 0 0 15px rgba(0,0,0,0.25),
+        0 0 25px rgba(0,0,0,0.25);
+      transition: transform 0.2s ease-out;
+      filter: blur(0.2px);
+    }
+
+    .mini-eye::before {
+      /* zachte overgang zodat het lijkt dat ze in het grote oog groeien */
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,0,0,0.15) 0%, transparent 60%);
+      z-index: -1;
+    }
+
+    .mini-eye .mini-ball {
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #002a00 0%, #007a55 45%, #002922 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s ease-out;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .mini-eye .pupil {
+      width: 40%;
+      height: 40%;
+      background: #000;
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(0,0,0,0.8);
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="mutant-eye">
     <div class="eye">
       <div class="veins"></div>
       <div class="eye-ball" id="eyeball">
@@ -113,15 +153,52 @@
   </div>
 
   <script>
+    const container = document.getElementById('mutant-eye');
     const eyeball = document.getElementById('eyeball');
+    const totalMiniEyes = 22; // meer ogen om de rand te vullen
+    const miniEyes = [];
+
+    for (let i = 0; i < totalMiniEyes; i++) {
+      const mini = document.createElement('div');
+      mini.classList.add('mini-eye');
+      const ball = document.createElement('div');
+      ball.classList.add('mini-ball');
+      const pupil = document.createElement('div');
+      pupil.classList.add('pupil');
+      ball.appendChild(pupil);
+      mini.appendChild(ball);
+      container.appendChild(mini);
+      miniEyes.push({ mini, ball });
+
+      const angle = (i / totalMiniEyes) * Math.PI * 2;
+      const baseRadius = 150 + Math.random() * 12; // rond de rand
+      const size = 40 + Math.random() * 45; // grotere variatie
+      const x = Math.cos(angle) * baseRadius + 160 - size / 2 + (Math.random() * 10 - 5);
+      const y = Math.sin(angle) * baseRadius + 160 - size / 2 + (Math.random() * 10 - 5);
+
+      mini.style.width = `${size}px`;
+      mini.style.height = `${size}px`;
+      mini.style.left = `${x}px`;
+      mini.style.top = `${y}px`;
+
+      const irisScale = 0.45 + (Math.random() * 0.15 - 0.05);
+      ball.style.width = `${irisScale * 100}%`;
+      ball.style.height = `${irisScale * 100}%`;
+    }
+
     document.addEventListener('mousemove', (e) => {
       const x = e.clientX / window.innerWidth - 0.5;
       const y = e.clientY / window.innerHeight - 0.5;
       const moveX = x * 60;
       const moveY = y * 60;
+
       eyeball.style.transform = `translate(${moveX}px, ${moveY}px)`;
+
+      miniEyes.forEach(({ ball }, i) => {
+        const delay = (i % 5) * 0.02; // mini variatie in respons
+        ball.style.transform = `translate(${moveX / 2.5}px, ${moveY / 2.5}px)`;
+      });
     });
   </script>
 </body>
 </html>
-
